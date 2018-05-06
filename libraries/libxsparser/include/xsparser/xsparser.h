@@ -33,15 +33,15 @@ typedef struct
     uint32_t invalid_count; /*!< Number of invalid messages parsed/aborted. */
     uint8_t *rx_buffer; /*!< Pointer to user buffer where received message data is stored. */
     uint16_t rx_buffer_size; /*!< Size of user receive buffer in bytes. */
-} xsparser;
+} xsparser_s;
 
 void xsparser_init(
         uint8_t * const rx_buffer,
         const uint16_t rx_buffer_size,
-        xsparser * const parser);
+        xsparser_s * const parser);
 
 uint8_t xsparser_parse_byte(
         const uint8_t byte,
-        xsparser * const parser);
+        xsparser_s * const parser);
 
 #endif /* XSPARSER_H */

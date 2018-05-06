@@ -10,7 +10,7 @@
 
 static __attribute__((always_inline)) inline void update_byte(
         const uint8_t byte,
-        xsparser * const parser)
+        xsparser_s * const parser)
 {
     parser->rx_buffer[parser->bytes_read] = byte;
     parser->bytes_read += 1;
@@ -20,7 +20,7 @@ static __attribute__((always_inline)) inline void update_byte(
 void xsparser_init(
         uint8_t * const rx_buffer,
         const uint16_t rx_buffer_size,
-        xsparser * const parser)
+        xsparser_s * const parser)
 {
     parser->state = XSPARSER_STATE_PREAMBLE;
     parser->bytes_read = 0;
@@ -35,7 +35,7 @@ void xsparser_init(
 
 uint8_t xsparser_parse_byte(
         const uint8_t byte,
-        xsparser * const parser)
+        xsparser_s * const parser)
 {
     uint8_t msg_ready = 0;
 
