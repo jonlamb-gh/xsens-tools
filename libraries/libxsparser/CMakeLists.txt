@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(libxsparser VERSION 0.1 LANGUAGES C)
 
-enable_testing()
-
 add_library(
     xsparser
     STATIC
@@ -29,7 +27,8 @@ target_compile_options(
 target_include_directories(
     xsparser
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 # this makes the project importable from the build directory
 export(
@@ -37,3 +36,6 @@ export(
     xsparser
     FILE
     LibXsParserConfig.cmake)
+
+enable_testing()
+add_subdirectory(tests)

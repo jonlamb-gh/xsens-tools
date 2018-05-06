@@ -5,8 +5,8 @@
  */
 
 #include <stdint.h>
-#include "xsmessage.h"
-#include "xsparser.h"
+#include "xsparser/xsmessage.h"
+#include "xsparser/xsparser.h"
 
 static __attribute__((always_inline)) inline void update_byte(
         const uint8_t byte,
