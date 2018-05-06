@@ -12,6 +12,9 @@ static __attribute__((always_inline)) inline void update_byte(
         const uint8_t byte,
         xsparser_s * const parser)
 {
+    // TODO
+    //assert(parser->bytes_read < parser->rx_buffer_size);
+
     parser->rx_buffer[parser->bytes_read] = byte;
     parser->bytes_read += 1;
     parser->checksum += byte;
@@ -76,6 +79,11 @@ uint8_t xsparser_parse_byte(
             parser->payload_size = (uint16_t) byte;
             parser->total_size = (XS_LEN_MSGHEADERCS + parser->payload_size);
             parser->state = XSPARSER_STATE_PAYLOAD;
+
+            if(parser->payload_size > XS_MAXSHORTDATALEN)
+            {
+                parser->state = XSPARSER_STATE_PREAMBLE;
+            }
         }
         else
         {
@@ -95,9 +103,19 @@ uint8_t xsparser_parse_byte(
         parser->payload_size |= ((uint16_t) byte);
         parser->total_size = (XS_LEN_MSGEXTHEADERCS + parser->payload_size);
         parser->state = XSPARSER_STATE_PAYLOAD;
+
+        if(parser->payload_size > XS_MAXDATALEN)
+        {
+            parser->state = XSPARSER_STATE_PREAMBLE;
+        }
     }
     else if(parser->state == XSPARSER_STATE_PAYLOAD)
     {
+        if(parser->total_size > XS_MAXMSGLEN)
+        {
+            parser->state = XSPARSER_STATE_PREAMBLE;
+        }
+
         update_byte(byte, parser);
 
         if((parser->bytes_read + 1) == (uint32_t) parser->total_size)
