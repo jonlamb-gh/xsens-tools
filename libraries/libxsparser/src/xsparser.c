@@ -48,15 +48,23 @@ uint8_t xsparser_parse_byte(
         parser->total_size = 0;
         parser->payload_size = 0;
 
-        update_byte(byte, parser);
-        parser->checksum = 0;
+        if(byte == XS_PREAMBLE)
+        {
+            update_byte(byte, parser);
+            parser->checksum = 0;
 
-        parser->state = XSPARSER_STATE_BUS_ID;
+            parser->state = XSPARSER_STATE_BUS_ID;
+        }
     }
     else if(parser->state == XSPARSER_STATE_BUS_ID)
     {
         update_byte(byte, parser);
         parser->state = XSPARSER_STATE_MSG_ID;
+
+        if((byte != XS_BID_MASTER) && (byte != XS_BID_SELF))
+        {
+            parser->state = XSPARSER_STATE_PREAMBLE;
+        }
     }
     else if(parser->state == XSPARSER_STATE_MSG_ID)
     {

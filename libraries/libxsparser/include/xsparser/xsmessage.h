@@ -30,11 +30,16 @@
 #define XS_MAXSHORTMSGLEN       (XS_MAXSHORTDATALEN+XS_LEN_MSGHEADERCS)
 #define XS_MAXGARBAGE           (XS_MAXMSGLEN+1)
 
+#define XS_BID_SELF             (0x01)
+#define XS_BID_MASTER           (0xFF)
+
+#define XS_MID_MTDATA2          (0x36)
+
 typedef struct __attribute__((packed))
 {
     uint8_t preamble;
-    uint8_t busid;
-    uint8_t msgid;
+    uint8_t bus_id;
+    uint8_t msg_id;
     uint8_t length;
     union length_data
     {

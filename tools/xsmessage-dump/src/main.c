@@ -18,7 +18,7 @@
 static volatile sig_atomic_t g_exit_signaled;
 
 static void sig_handler(
-    const int sig)
+        const int sig)
 {
     if(sig == SIGINT)
     {
@@ -53,7 +53,6 @@ static int configure_tty(
         return -1;
     }
 
-    // TODO - fix this
     cfsetospeed(&tty, (speed_t) speed);
     cfsetispeed(&tty, (speed_t) speed);
 
@@ -80,6 +79,87 @@ static int configure_tty(
     }
 
     return 0;
+}
+
+static uint16_t xsmsg_len(
+        const xsmessage_header * const msg)
+{
+    uint16_t len;
+
+    if(msg->length == XS_EXTLENCODE)
+    {
+        len = (msg->length_data.ext.length.high << 8) | (msg->length_data.ext.length.low);
+    }
+    else
+    {
+        len = msg->length;
+    }
+
+    return len;
+}
+
+static const uint8_t *xsmsg_data(
+        const xsmessage_header * const msg)
+{
+    const uint8_t *data;
+
+    if(msg->length == XS_EXTLENCODE)
+    {
+        data = &msg->length_data.ext.data[0];
+    }
+    else
+    {
+        data = &msg->length_data.data[0];
+    }
+
+    return data;
+}
+
+static void print_mtdata2(
+        const uint16_t data_size,
+        const uint8_t * const data)
+{
+    const uint8_t * const start = data;
+    const uint8_t *ptr = start;
+
+    while(ptr < (start + data_size))
+    {
+        const uint16_t item_id = (ptr[0] << 8) | (ptr[1]);
+
+        ptr += sizeof(item_id);
+
+        const uint8_t item_size = *ptr;
+
+        ptr += sizeof(item_size);
+
+        printf("  - identifer: 0x%04lX\n", (unsigned long) item_id);
+        printf("    size: %u\n", (unsigned int) item_size);
+
+        ptr += item_size;
+    }
+}
+
+static void dump_msg(
+        const xsmessage_header * const msg)
+{
+    const uint16_t data_size = xsmsg_len(msg);
+    const uint8_t * const data = xsmsg_data(msg);
+
+    printf("header\n");
+    printf("  preamble: 0x%02X\n", (unsigned int) msg->preamble);
+    printf("  bus_id: %u\n", (unsigned int) msg->bus_id);
+    printf("  message_id: 0x%02X\n", (unsigned int) msg->msg_id);
+    printf("  length: %u\n", (unsigned int) data_size);
+
+    if(msg->msg_id == XS_MID_MTDATA2)
+    {
+        printf("  mtdata2 packet\n");
+
+        print_mtdata2(data_size, data);
+    }
+
+    printf("\n");
+    (void) fflush(stdout);
 }
 
 int main(int argc, char **argv)
@@ -126,8 +206,6 @@ int main(int argc, char **argv)
         }
         else if(bytes_read > 0)
         {
-            printf("%d\n", bytes_read);
-
             uint8_t idx;
             for(idx = 0; idx < (uint8_t) bytes_read; idx += 1)
             {
@@ -137,7 +215,7 @@ int main(int argc, char **argv)
 
                 if(parser_status != 0)
                 {
-                    printf("MSG\n");
+                    dump_msg((xsmessage_header*) parser_rx_buffer);
                 }
             }
         }
