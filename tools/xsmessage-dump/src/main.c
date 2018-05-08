@@ -225,5 +225,12 @@ int main(int argc, char **argv)
 
     free(parser_rx_buffer);
 
+    printf("\n\n");
+    printf("parser status\n");
+    printf("  valid count: %lu\n", (unsigned long) parser.valid_count);
+    printf("  invalid count: %lu\n", (unsigned long) parser.invalid_count);
+    printf("\n");
+    (void) fflush(stdout);
+
     return EXIT_SUCCESS;
 }
